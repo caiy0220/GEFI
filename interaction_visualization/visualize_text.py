@@ -119,32 +119,3 @@ def draw_text_only(ax, tokens, has_spaces, img_width, img_height,
         return ax, bbox_infos
 
     return ax
-
-# Draw bbox given statistics, referring to ``bbox_info`` as retruend by ``draw_text_only``
-# or new bbox created by ``box_transition``
-def draw_bbox(ax, x, y, w, h, facecolor, edgecolor):
-    patch = FancyBboxPatch(
-        (x,y), w, h, boxstyle='round,pad=0.18,rounding_size=2',
-        facecolor=facecolor, edgecolor=edgecolor
-    )
-    ax.add_patch(patch)
-    return patch
-
-# Create animation of anchor box, shifting from one token to another
-# Return a list of 
-def bbox_transition(box_start, box_end, frames=11):
-    """
-    Returns
-    --------------------
-    frames: [ndarray] an array of bbox statistics in shape (n, 4), 
-                      each row corresponds to bbox location ``xywh`` in each frame,
-    t:      [ndarray] an array of relative position between two boxes,
-                      can be reused to configure status (e.g., visibility) during transition
-    """
-    t = np.linspace(0, 1, 11)
-    frames = []
-    for v0, v1 in zip(box_start, box_end):
-        frames.append((1-t)*v0 + t*v1)
-    frames = np.vstack(frames).T
-    return frames, t
-

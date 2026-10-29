@@ -55,7 +55,11 @@ class RoundMask:
 
     def generate_mask(self, y, x, size=224):
         mask = torch.zeros((size, size))
-        mask[y-self.shift:y+self.shift+1, x-self.shift:x+self.shift+1] = self.mask
+        top, left = y - self.shift, x - self.shift
+        bottom, right = top + self.mask.shape[0], left + self.mask.shape[1]
+        y0, x0 = max(top, 0), max(left, 0)
+        y1, x1 = min(bottom, size), min(right, size)
+        mask[y0:y1, x0:x1] = self.mask[y0-top:y1-top, x0-left:x1-left]
         return mask
     
 def curved_trajectory( start=(31, 201), end=(161, 31), n_points=300, bend=80, integer=True,):
