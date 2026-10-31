@@ -3,7 +3,6 @@
 |               Determining Anchor Tokens with IG              |
 ================================================================
 """
-from nltk.corpus import stopwords
 from clip.simple_tokenizer import SimpleTokenizer
 from captum.attr import LayerIntegratedGradients
 import model_adapter
@@ -12,6 +11,8 @@ import functools, torch, sys, pickle
 import clip
 from tqdm import tqdm
 from utils import log
+from nltk.corpus import stopwords
+
 
 def forward_text_ig(model, text, image):
     text_features = model.encode_text(text)
@@ -20,6 +21,13 @@ def forward_text_ig(model, text, image):
     image_features = image_features / image_features.norm(dim=-1, keepdim=True)
     return (image_features * text_features).sum(dim=-1)
 
+def get_stop_words():
+    try:
+        return stopwords.words('english')
+    except LookupError:
+        import nltk
+        nltk.download("stopwords", quiet=True)
+        return stopwords.words("english")
 
 def main():
     # dsname = sys.argv[1]
@@ -36,7 +44,7 @@ def main():
     RANDOM_SEED = 0
     # Filtering out stop words and punctuations
     PUNCTUATIONS = {".", ",", "!", "?", ";", ":", "-", "'", "'s", "'t", "'re", "'ve", "'m", "'ll", "'d"}
-    IGNORE = set(stopwords.words('english')) | PUNCTUATIONS
+    IGNORE = set(get_stop_words()) | PUNCTUATIONS
 
     clipmodel, preprocess = model_adapter.load_clip(device=DEVICE)
     tokenizer = SimpleTokenizer()
