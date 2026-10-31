@@ -2,6 +2,7 @@ import numpy as np
 import functools, warnings, yaml
 import re, time, random, pickle
 import torch
+from pathlib import Path
 
 from torch import manual_seed
 
@@ -26,6 +27,10 @@ def deprecated(func):
         warnings.simplefilter('default', DeprecationWarning)  # reset filter
         return func(*args, **kwargs)
     return new_func
+
+def get_file_path(root_path, model_name, dataset_name, expl_name, idx, filepath):
+    filename = Path(filepath).stem
+    return str(Path(root_path) / model_name.replace("/", "_") / dataset_name / expl_name / f"{idx}_{filename}.pkl")
 
 def load_config(path):
     with open(path, 'r') as f:
@@ -133,3 +138,30 @@ def add_aopc2file(expl_name, fname, aopc, avg_cost=0, **kwargs):
         num_samples = kwargs['num_samples']
         msg = f'{expl_name:<20}[{aopc:>5.2f}], #samples: {num_samples:>5}, #Avg cost: {avg_cost:5>.2f}s\n'
         f.write(msg)
+
+
+'''
+==================================================================
+|              Some other functions for evaluation                |
+==================================================================
+'''
+def random_ranking(num_features):
+    ranking = list(range(num_features))
+    random.shuffle(ranking)
+    return ranking
+
+# Sorting features (pixels/tokens) in descending order
+def get_feature_ranking(vals, deletion=True):
+    """ 
+    Args:
+        vals:       [torch.Tensor] Attribution/Interaction scores of pixels, in shape of (H, W)
+        deletion:   [Bool] Ranking order, descending for deletion process
+    -----
+    Returns:
+        Sorted vals in 1-D vector
+        Feature Indices in 1-D vector
+    """
+    vals_flat = vals.flatten()
+    res = vals_flat.sort(descending=deletion)    # (Values, Indices)
+    # return list(zip(res[0].tolist(), res[1].tolist()))
+    return res[0].tolist(), res[1].tolist()

@@ -1,0 +1,46 @@
+seed: 42
+# OpenAI CLIP examples: ViT-B/32, ViT-B/16, RN50, RN50x4.
+# SigLIP-2 examples: SigLIP2-B/16, SigLIP2-L/16.
+model: ViT-B/32
+explainer: gefi
+device: cuda
+
+root_expl_path: ./explanation
+root_result_path: ./results
+root_ablation_path: ./ablation
+
+# 'del' for deletion and 'ins' for insertion
+eval_mode: del
+
+patch_size: 32
+
+square_img: False # Padding image to square with zeros to avoid cropping off contents
+budget: 5000
+img_baseline: 0   # 'blur'
+txt_baseline: 0
+
+# Configs for GEFI
+gefi_truncation: 0.25
+gefi_img_ratio: 0.8
+gefi_patch_size: 32
+
+# Configs for ExCLIP
+exclip_N: 20
+
+dataset: mscoco # mscoco or flickr30k
+masking_mode: bbox # 'bbox' for bounding box or 'seg' for segmentation mask
+
+coco_path: ./datasets/mscoco/mscoco_filtered.pkl
+flickr_path: ./datasets/flickr30k/flickr30k_filtered.pkl
+coco_ig_path: ./datasets/mscoco/mscoco_filtered_ig.pkl
+flickr_ig_path: ./datasets/flickr30k/flickr30k_filtered_ig.pkl
+
+# The number of top key tokens as determined by IG to consider for interaction-based evaluation.
+num_key_idx: 5
+
+# Set to a value between 0 and 1 to use quantile-based thresholding for PGE,
+# or any other value to disable (default to positive interaction values only).
+PGE_quantile: 0.5
+positive_only: False
+
+flag_visualize: False
